@@ -1,4 +1,5 @@
 import { useDroppable } from '@dnd-kit/core'
+import { useState } from 'react'
 
 function DropZone({ id, children }) {
   const { setNodeRef, isOver } = useDroppable({ id })
@@ -49,7 +50,57 @@ function EmptySlot() {
   )
 }
 
-function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange }) {
+function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendPlanChange }) {
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [showCalendar, setShowCalendar] = useState(false)
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
+  const getDateRange = (startDate, days) => {
+    const dates = []
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate)
+      date.setDate(startDate.getDate() + i)
+      dates.push(date)
+    }
+    return dates
+  }
+
+  const generateDayNames = (startDate, days) => {
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    const dates = getDateRange(startDate, days)
+    return dates.map(date => ({
+      name: dayNames[date.getDay()],
+      date: formatDate(date),
+      id: `day-${date.getTime()}`
+    }))
+  }
+
+  const dayNames = generateDayNames(selectedDate, weekendDays)
+
+  const handleDateChange = (event) => {
+    const newDate = new Date(event.target.value)
+    setSelectedDate(newDate)
+    setShowCalendar(false)
+  }
+
+  const handleDaysChange = (newDays) => {
+    onWeekendDaysChange(newDays)
+    // Update weekend plan structure to match new number of days
+    const newPlan = {}
+    for (let i = 0; i < newDays; i++) {
+      const dayKey = `day${i}`
+      newPlan[dayKey] = weekendPlan[dayKey] || []
+    }
+    onWeekendPlanChange(newPlan)
+  }
+
   return (
     <>
       <div className="mb-12 text-center">
@@ -60,10 +111,30 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange }) {
       <div className="mb-12 flex flex-col sm:flex-row items-center justify-center gap-6">
         <div className="flex items-center gap-4 rounded-lg bg-[var(--bg-secondary)] p-3 shadow-inner">
           <span className="font-bold text-[var(--text-primary)]">Selected Weekend:</span>
-          <span className="text-lg font-bold text-[var(--primary-color)]">Oct 28 - 29, 2023</span>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white transition-colors hover:bg-gray-100">
-            <span className="material-symbols-outlined text-xl text-[var(--text-primary)]">calendar_today</span>
-          </button>
+          <span className="text-lg font-bold text-[var(--primary-color)]">
+            {dayNames.length > 1 
+              ? `${dayNames[0].date} - ${dayNames[dayNames.length - 1].date}`
+              : dayNames[0].date
+            }
+          </span>
+          <div className="relative">
+            <button 
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white transition-colors hover:bg-gray-100"
+              onClick={() => setShowCalendar(!showCalendar)}
+            >
+              <span className="material-symbols-outlined text-xl text-[var(--text-primary)]">calendar_today</span>
+            </button>
+            {showCalendar && (
+              <div className="absolute top-12 left-0 z-50 bg-white rounded-lg shadow-lg border border-[var(--border-color)] p-4">
+                <input
+                  type="date"
+                  value={selectedDate.toISOString().split('T')[0]}
+                  onChange={handleDateChange}
+                  className="w-full p-2 border border-[var(--border-color)] rounded focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]"
+                />
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
@@ -73,42 +144,29 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange }) {
             id="weekend-days" 
             type="number" 
             value={weekendDays}
-            onChange={(e) => onWeekendDaysChange(parseInt(e.target.value) || 2)}
+            onChange={(e) => handleDaysChange(parseInt(e.target.value) || 2)}
             min="1"
             max="7"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-        <div className="space-y-8">
-          <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
-            <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
-            Saturday, Oct 28
-          </h3>
-          
-          <DropZone id="saturday-drop">
-            {weekendPlan.saturday.map(activity => (
-              <ActivityCard key={activity.id} activity={activity} />
-            ))}
-            <EmptySlot />
-          </DropZone>
-        </div>
-
-        <div className="space-y-8">
-          <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
-            <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
-            Sunday, Oct 29
-          </h3>
-          
-          <DropZone id="sunday-drop">
-            {weekendPlan.sunday.map(activity => (
-              <ActivityCard key={activity.id} activity={activity} />
-            ))}
-            <EmptySlot />
-            <EmptySlot />
-          </DropZone>
-        </div>
+      <div className={`grid gap-12 ${weekendDays <= 2 ? 'grid-cols-1 lg:grid-cols-2' : weekendDays <= 3 ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+        {dayNames.map((day, index) => (
+          <div key={day.id} className="space-y-8">
+            <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
+              <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
+              {day.name}, {day.date}
+            </h3>
+            
+            <DropZone id={`day-${index}-drop`}>
+              {(weekendPlan[`day${index}`] || []).map(activity => (
+                <ActivityCard key={activity.id} activity={activity} />
+              ))}
+              <EmptySlot />
+            </DropZone>
+          </div>
+        ))}
       </div>
 
       <hr className="border-t border-[var(--border-color)] my-12"/>

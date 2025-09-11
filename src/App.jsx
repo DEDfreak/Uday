@@ -47,7 +47,7 @@ const initialActivities = [
 ]
 
 const initialWeekendPlan = {
-  saturday: [
+  day0: [
     {
       id: 'brunch',
       title: 'Brunch with Friends',
@@ -61,7 +61,7 @@ const initialWeekendPlan = {
       category: 'Adventurous'
     }
   ],
-  sunday: [
+  day1: [
     {
       id: 'movie',
       title: 'Movie Marathon',
@@ -134,20 +134,23 @@ function App() {
     if (!over) return
 
     // Handle dropping activities onto weekend plan
-    if (over.id === 'saturday-drop' || over.id === 'sunday-drop') {
-      const day = over.id === 'saturday-drop' ? 'saturday' : 'sunday'
-      const activity = [...activities, ...aiGeneratedActivities].find(a => a.id === active.id)
-      
-      if (activity && !weekendPlan[day].find(a => a.id === activity.id)) {
-        setWeekendPlan(prev => ({
-          ...prev,
-          [day]: [...prev[day], {
-            id: activity.id,
-            title: activity.title,
-            description: activity.description,
-            category: activity.category
-          }]
-        }))
+    if (over.id.startsWith('day-') && over.id.endsWith('-drop')) {
+      const dayIndex = over.id.match(/day-(\d+)-drop/)?.[1]
+      if (dayIndex !== undefined) {
+        const dayKey = `day${dayIndex}`
+        const activity = [...activities, ...aiGeneratedActivities].find(a => a.id === active.id)
+        
+        if (activity && !weekendPlan[dayKey]?.find(a => a.id === activity.id)) {
+          setWeekendPlan(prev => ({
+            ...prev,
+            [dayKey]: [...(prev[dayKey] || []), {
+              id: activity.id,
+              title: activity.title,
+              description: activity.description,
+              category: activity.category
+            }]
+          }))
+        }
       }
     }
   }
@@ -191,6 +194,7 @@ function App() {
             weekendPlan={weekendPlan}
             weekendDays={weekendDays}
             onWeekendDaysChange={setWeekendDays}
+            onWeekendPlanChange={setWeekendPlan}
           />
           
           <ActivityBrowser 
@@ -221,7 +225,7 @@ function App() {
         onClose={() => setShareModalOpen(false)}
         weekendPlan={weekendPlan}
       />
-    </div>
+      </div>
   )
 }
 

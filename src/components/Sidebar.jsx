@@ -15,6 +15,13 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
       )}
       
       <aside className={`fixed inset-y-0 left-0 z-20 flex w-72 transform flex-col border-r border-[var(--border-color)] bg-[var(--bg-primary)] p-6 shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Close button for mobile */}
+        <button 
+          className="lg:hidden absolute top-4 right-4 text-[var(--text-primary)] hover:text-[var(--text-secondary)]"
+          onClick={onClose}
+        >
+          <span className="material-symbols-outlined text-2xl">close</span>
+        </button>
         <div className="flex items-center gap-2.5 mb-8">
           <svg className="h-8 w-8 text-[var(--primary-color)]" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <g clipPath="url(#clip0_6_319)">

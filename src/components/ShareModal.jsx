@@ -22,35 +22,28 @@ function ShareModal({ isOpen, onClose, weekendPlan }) {
             </div>
             
             <div className="space-y-6">
-              <div>
-                <h3 className="font-bold text-xl text-[var(--text-primary)] mb-3">Saturday</h3>
-                <ul className="space-y-3">
-                  {weekendPlan.saturday.map(activity => (
-                    <li key={activity.id} className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-2xl text-[var(--primary-color)] mt-0.5">check_circle</span>
-                      <div>
-                        <h4 className="font-semibold text-[var(--text-primary)]">{activity.title}</h4>
-                        <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-bold text-xl text-[var(--text-primary)] mb-3">Sunday</h3>
-                <ul className="space-y-3">
-                  {weekendPlan.sunday.map(activity => (
-                    <li key={activity.id} className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-2xl text-[var(--primary-color)] mt-0.5">check_circle</span>
-                      <div>
-                        <h4 className="font-semibold text-[var(--text-primary)]">{activity.title}</h4>
-                        <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {Object.keys(weekendPlan).map((dayKey, index) => {
+                const dayNames = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+                const dayName = dayNames[index] || `Day ${index + 1}`
+                const activities = weekendPlan[dayKey] || []
+                
+                return (
+                  <div key={dayKey}>
+                    <h3 className="font-bold text-xl text-[var(--text-primary)] mb-3">{dayName}</h3>
+                    <ul className="space-y-3">
+                      {activities.map(activity => (
+                        <li key={activity.id} className="flex items-start gap-3">
+                          <span className="material-symbols-outlined text-2xl text-[var(--primary-color)] mt-0.5">check_circle</span>
+                          <div>
+                            <h4 className="font-semibold text-[var(--text-primary)]">{activity.title}</h4>
+                            <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              })}
             </div>
             
             <div className="mt-8 pt-6 border-t-2 border-dashed border-yellow-200 flex justify-between items-center">

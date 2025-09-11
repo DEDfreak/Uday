@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 const categories = ['All', 'Relaxing', 'Adventurous', 'Cozy', 'Social', 'Creative']
 
-function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNewActivityChange, onAddActivity }) {
+function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNewActivityChange, onAddActivity, weekendDays, selectedDate }) {
   return (
     <>
       {/* Mobile backdrop */}
@@ -89,6 +89,45 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
               value={newActivity.description}
               onChange={(e) => onNewActivityChange({ ...newActivity, description: e.target.value })}
             />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="activityCategory">Category</label>
+            <select 
+              className="mt-1 block w-full rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 px-3 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
+              id="activityCategory"
+              value={newActivity.category || ''}
+              onChange={(e) => onNewActivityChange({ ...newActivity, category: e.target.value })}
+            >
+              <option value="">Select Category</option>
+              {categories.filter(cat => cat !== 'All').map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="activityDate">Add to Date</label>
+            <select 
+              className="mt-1 block w-full rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 px-3 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
+              id="activityDate"
+              value={newActivity.selectedDay || ''}
+              onChange={(e) => onNewActivityChange({ ...newActivity, selectedDay: e.target.value })}
+            >
+              <option value="">Select Day</option>
+              {Array.from({ length: weekendDays }, (_, i) => {
+                const date = new Date(selectedDate)
+                date.setDate(selectedDate.getDate() + i)
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                const dayName = dayNames[date.getDay()]
+                const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                return (
+                  <option key={i} value={i}>
+                    {dayName}, {formattedDate}
+                  </option>
+                )
+              })}
+            </select>
           </div>
 
           <button 

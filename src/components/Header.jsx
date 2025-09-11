@@ -2,8 +2,9 @@ function Header({ onMenuClick, onShareClick }) {
   return (
     <header className="sticky top-0 z-10 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <button className="lg:hidden" onClick={onMenuClick}>
-          <span className="material-symbols-outlined text-2xl text-[var(--text-primary)]">menu</span>
+        <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors" onClick={onMenuClick}>
+          <span className="material-symbols-outlined text-xl text-[var(--text-primary)]">menu</span>
+          <span className="text-sm font-medium text-[var(--text-primary)] hidden sm:block">Menu</span>
         </button>
         
         <div className="flex items-center gap-4 ml-auto">

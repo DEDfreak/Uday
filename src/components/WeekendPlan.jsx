@@ -1,4 +1,4 @@
-import { useDroppable } from '@dnd-kit/core'
+import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { useState } from 'react'
 
 function DropZone({ id, children }) {
@@ -14,7 +14,15 @@ function DropZone({ id, children }) {
   )
 }
 
-function ActivityCard({ activity }) {
+function DraggableActivityCard({ activity, dayIndex, onRemove }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `activity-${activity.id}-${dayIndex}`,
+  })
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined
+
   const categoryColors = {
     'Relaxing': 'bg-[var(--primary-color)] text-[var(--text-primary)]',
     'Adventurous': 'bg-[#e6f5c8] text-[#4d6613]',
@@ -24,16 +32,30 @@ function ActivityCard({ activity }) {
   }
 
   return (
-    <div className="group cursor-grab rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md">
+    <div 
+      ref={setNodeRef} 
+      style={style}
+      {...listeners} 
+      {...attributes}
+      className={`group cursor-grab rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md ${isDragging ? 'opacity-50' : ''}`}
+    >
       <div className="flex items-start gap-4">
         <span className="material-symbols-outlined mt-1 text-2xl text-[var(--text-secondary)]">drag_indicator</span>
         <div className="flex-1">
           <h4 className="font-bold">{activity.title}</h4>
           <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
         </div>
-        <span className={`ml-auto rounded-full px-3 py-1 text-xs font-bold ${categoryColors[activity.category] || 'bg-gray-200 text-gray-800'}`}>
-          {activity.category}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${categoryColors[activity.category] || 'bg-gray-200 text-gray-800'}`}>
+            {activity.category}
+          </span>
+          <button 
+            onClick={() => onRemove(activity.id)}
+            className="text-red-500 hover:text-red-700 transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">close</span>
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -50,9 +72,9 @@ function EmptySlot() {
   )
 }
 
-function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendPlanChange }) {
-  const [selectedDate, setSelectedDate] = useState(new Date())
+function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendPlanChange, selectedDate, onSelectedDateChange }) {
   const [showCalendar, setShowCalendar] = useState(false)
+  const [currentDayIndex, setCurrentDayIndex] = useState(0)
 
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { 
@@ -86,7 +108,7 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
 
   const handleDateChange = (event) => {
     const newDate = new Date(event.target.value)
-    setSelectedDate(newDate)
+    onSelectedDateChange(newDate)
     setShowCalendar(false)
   }
 
@@ -99,6 +121,39 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
       newPlan[dayKey] = weekendPlan[dayKey] || []
     }
     onWeekendPlanChange(newPlan)
+    // Reset carousel to first day
+    setCurrentDayIndex(0)
+  }
+
+  const handleRemoveActivity = (activityId) => {
+    const newPlan = { ...weekendPlan }
+    Object.keys(newPlan).forEach(dayKey => {
+      newPlan[dayKey] = newPlan[dayKey].filter(activity => activity.id !== activityId)
+    })
+    onWeekendPlanChange(newPlan)
+  }
+
+  const handleMoveActivity = (activityId, fromDayIndex, toDayIndex) => {
+    const newPlan = { ...weekendPlan }
+    const fromDayKey = `day${fromDayIndex}`
+    const toDayKey = `day${toDayIndex}`
+    
+    // Find and remove activity from source day
+    const activity = newPlan[fromDayKey]?.find(a => a.id === activityId)
+    if (activity) {
+      newPlan[fromDayKey] = newPlan[fromDayKey].filter(a => a.id !== activityId)
+      // Add to destination day
+      newPlan[toDayKey] = [...(newPlan[toDayKey] || []), activity]
+      onWeekendPlanChange(newPlan)
+    }
+  }
+
+  const nextDay = () => {
+    setCurrentDayIndex(prev => Math.min(prev + 2, weekendDays - 2))
+  }
+
+  const prevDay = () => {
+    setCurrentDayIndex(prev => Math.max(prev - 2, 0))
   }
 
   return (
@@ -151,23 +206,93 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
         </div>
       </div>
 
-      <div className={`grid gap-12 ${weekendDays <= 2 ? 'grid-cols-1 lg:grid-cols-2' : weekendDays <= 3 ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
-        {dayNames.map((day, index) => (
-          <div key={day.id} className="space-y-8">
-            <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
-              <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
-              {day.name}, {day.date}
-            </h3>
+      {weekendDays <= 2 ? (
+        <div className="grid gap-12 grid-cols-1 lg:grid-cols-2">
+          {dayNames.map((day, index) => (
+            <div key={day.id} className="space-y-8">
+              <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
+                <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
+                {day.name}, {day.date}
+              </h3>
+              
+              <DropZone id={`day-${index}-drop`}>
+                {(weekendPlan[`day${index}`] || []).map(activity => (
+                  <DraggableActivityCard 
+                    key={activity.id} 
+                    activity={activity} 
+                    dayIndex={index}
+                    onRemove={handleRemoveActivity}
+                  />
+                ))}
+                <EmptySlot />
+              </DropZone>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Carousel Navigation */}
+          <div className="flex items-center justify-between">
+            <button 
+              onClick={prevDay}
+              disabled={currentDayIndex === 0}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+              Previous
+            </button>
             
-            <DropZone id={`day-${index}-drop`}>
-              {(weekendPlan[`day${index}`] || []).map(activity => (
-                <ActivityCard key={activity.id} activity={activity} />
+            <div className="flex items-center gap-2">
+              {Array.from({ length: Math.ceil(weekendDays / 2) }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentDayIndex(i * 2)}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    Math.floor(currentDayIndex / 2) === i ? 'bg-[var(--primary-color)]' : 'bg-[var(--border-color)]'
+                  }`}
+                />
               ))}
-              <EmptySlot />
-            </DropZone>
+            </div>
+            
+            <button 
+              onClick={nextDay}
+              disabled={currentDayIndex >= weekendDays - 2}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </button>
           </div>
-        ))}
-      </div>
+
+          {/* Two Day Cards */}
+          <div className="grid gap-12 grid-cols-1 lg:grid-cols-2">
+            {[currentDayIndex, currentDayIndex + 1].map((dayIndex) => {
+              if (dayIndex >= weekendDays) return null
+              const day = dayNames[dayIndex]
+              return (
+                <div key={day.id} className="space-y-8">
+                  <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
+                    <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
+                    {day.name}, {day.date}
+                  </h3>
+                  
+                  <DropZone id={`day-${dayIndex}-drop`}>
+                    {(weekendPlan[`day${dayIndex}`] || []).map(activity => (
+                      <DraggableActivityCard 
+                        key={activity.id} 
+                        activity={activity} 
+                        dayIndex={dayIndex}
+                        onRemove={handleRemoveActivity}
+                      />
+                    ))}
+                    <EmptySlot />
+                  </DropZone>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <hr className="border-t border-[var(--border-color)] my-12"/>
     </>

@@ -118,8 +118,11 @@ function App() {
   })
   const [newActivity, setNewActivity] = useState({
     name: '',
-    description: ''
+    description: '',
+    category: '',
+    selectedDay: ''
   })
+  const [selectedDate, setSelectedDate] = useState(new Date())
   const [weekendDays, setWeekendDays] = useState(2)
   const [activeId, setActiveId] = useState(null)
 
@@ -138,18 +141,39 @@ function App() {
       const dayIndex = over.id.match(/day-(\d+)-drop/)?.[1]
       if (dayIndex !== undefined) {
         const dayKey = `day${dayIndex}`
-        const activity = [...activities, ...aiGeneratedActivities].find(a => a.id === active.id)
         
-        if (activity && !weekendPlan[dayKey]?.find(a => a.id === activity.id)) {
-          setWeekendPlan(prev => ({
-            ...prev,
-            [dayKey]: [...(prev[dayKey] || []), {
-              id: activity.id,
-              title: activity.title,
-              description: activity.description,
-              category: activity.category
-            }]
-          }))
+        // Check if it's an existing activity being moved
+        if (active.id.startsWith('activity-')) {
+          const activityId = active.id.split('-')[1]
+          const fromDayIndex = active.id.split('-')[2]
+          
+          // Move activity between days
+          if (fromDayIndex !== dayIndex) {
+            const newPlan = { ...weekendPlan }
+            const fromDayKey = `day${fromDayIndex}`
+            const activity = newPlan[fromDayKey]?.find(a => a.id === activityId)
+            
+            if (activity) {
+              newPlan[fromDayKey] = newPlan[fromDayKey].filter(a => a.id !== activityId)
+              newPlan[dayKey] = [...(newPlan[dayKey] || []), activity]
+              setWeekendPlan(newPlan)
+            }
+          }
+        } else {
+          // New activity from browser
+          const activity = [...activities, ...aiGeneratedActivities].find(a => a.id === active.id)
+          
+          if (activity && !weekendPlan[dayKey]?.find(a => a.id === activity.id)) {
+            setWeekendPlan(prev => ({
+              ...prev,
+              [dayKey]: [...(prev[dayKey] || []), {
+                id: activity.id,
+                title: activity.title,
+                description: activity.description,
+                category: activity.category
+              }]
+            }))
+          }
         }
       }
     }
@@ -157,10 +181,24 @@ function App() {
 
   const addNewActivity = (e) => {
     e.preventDefault()
-    if (newActivity.name.trim()) {
-      // In a real app, this would add to the activities list
-      console.log('Adding new activity:', newActivity)
-      setNewActivity({ name: '', description: '' })
+    if (newActivity.name.trim() && newActivity.category && newActivity.selectedDay !== '') {
+      const activityId = `custom-${Date.now()}`
+      const newActivityData = {
+        id: activityId,
+        title: newActivity.name,
+        description: newActivity.description,
+        category: newActivity.category
+      }
+      
+      // Add to the selected day
+      const dayKey = `day${newActivity.selectedDay}`
+      setWeekendPlan(prev => ({
+        ...prev,
+        [dayKey]: [...(prev[dayKey] || []), newActivityData]
+      }))
+      
+      // Reset form
+      setNewActivity({ name: '', description: '', category: '', selectedDay: '' })
     }
   }
 
@@ -181,6 +219,8 @@ function App() {
         newActivity={newActivity}
         onNewActivityChange={setNewActivity}
         onAddActivity={addNewActivity}
+        weekendDays={weekendDays}
+        selectedDate={selectedDate}
       />
       
       <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out lg:ml-72">
@@ -195,6 +235,8 @@ function App() {
             weekendDays={weekendDays}
             onWeekendDaysChange={setWeekendDays}
             onWeekendPlanChange={setWeekendPlan}
+            selectedDate={selectedDate}
+            onSelectedDateChange={setSelectedDate}
           />
           
           <ActivityBrowser 

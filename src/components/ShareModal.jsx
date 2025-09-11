@@ -49,9 +49,10 @@ function ShareModal({ isOpen, onClose, weekendPlan }) {
         const canvas = await html2canvas(planRef.current, {
           scale: 2,
           useCORS: true,
-          backgroundColor: '#fcfcf8',
+          backgroundColor: '#ffffff',
           allowTaint: true,
           foreignObjectRendering: true,
+          logging: false,
           ignoreElements: (element) => {
             // Skip elements with problematic CSS
             return element.classList?.contains('material-symbols-outlined')

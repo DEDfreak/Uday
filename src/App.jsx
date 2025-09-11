@@ -108,7 +108,7 @@ const aiActivities = [
 
 function App() {
   const [activities] = useState(initialActivities)
-  const [aiGeneratedActivities] = useState(aiActivities)
+  const [aiGeneratedActivities, setAiGeneratedActivities] = useState(aiActivities)
   const [weekendPlan, setWeekendPlan] = useState(initialWeekendPlan)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
@@ -203,6 +203,10 @@ function App() {
     }
   }
 
+  const handleAiActivitiesGenerated = (newActivities) => {
+    setAiGeneratedActivities(newActivities)
+  }
+
   const filteredActivities = activities.filter(activity => {
     const matchesCategory = filters.category === 'All' || activity.category === filters.category
     const matchesSearch = activity.title.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -252,6 +256,7 @@ function App() {
             <ActivityBrowser 
               activities={filteredActivities}
               aiActivities={aiGeneratedActivities}
+              onAiActivitiesGenerated={handleAiActivitiesGenerated}
             />
           </main>
         </div>
@@ -262,7 +267,7 @@ function App() {
               <div className="font-bold">
                 {[...activities, ...aiGeneratedActivities].find(a => a.id === activeId)?.title}
               </div>
-            </div>
+      </div>
           ) : null}
         </DragOverlay>
       </DndContext>

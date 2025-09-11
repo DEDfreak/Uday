@@ -35,12 +35,12 @@ function DraggableActivityCard({ activity, dayIndex, onRemove }) {
     <div 
       ref={setNodeRef} 
       style={style}
-      {...listeners} 
-      {...attributes}
       className={`group cursor-grab rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex items-start gap-4">
-        <span className="material-symbols-outlined mt-1 text-2xl text-[var(--text-secondary)]">drag_indicator</span>
+        <div {...listeners} {...attributes} className="flex items-center">
+          <span className="material-symbols-outlined mt-1 text-2xl text-[var(--text-secondary)]">drag_indicator</span>
+        </div>
         <div className="flex-1">
           <h4 className="font-bold">{activity.title}</h4>
           <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
@@ -50,8 +50,12 @@ function DraggableActivityCard({ activity, dayIndex, onRemove }) {
             {activity.category}
           </span>
           <button 
-            onClick={() => onRemove(activity.id)}
-            className="text-red-500 hover:text-red-700 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              onRemove(activity.id)
+            }}
+            className="text-red-500 hover:text-red-700 transition-colors p-1"
+            title="Remove activity"
           >
             <span className="material-symbols-outlined text-sm">close</span>
           </button>

@@ -11,15 +11,22 @@ function Header({ onMenuClick, onShareClick }) {
           <button 
             className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-secondary)] transition-colors hover:bg-[var(--border-color)]"
             onClick={onShareClick}
+            title="Share Plan"
           >
             <span className="material-symbols-outlined text-[var(--text-primary)]">ios_share</span>
           </button>
           
-          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-secondary)] transition-colors hover:bg-[var(--border-color)]">
+          <button 
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-secondary)] transition-colors hover:bg-[var(--border-color)]"
+            title="Theme"
+          >
             <span className="material-symbols-outlined text-[var(--text-primary)]">wb_sunny</span>
           </button>
           
-          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-secondary)] transition-colors hover:bg-[var(--border-color)]">
+          <button 
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-secondary)] transition-colors hover:bg-[var(--border-color)]"
+            title="Settings"
+          >
             <span className="material-symbols-outlined text-[var(--text-primary)]">settings</span>
           </button>
           

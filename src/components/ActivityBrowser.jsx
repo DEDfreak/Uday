@@ -51,7 +51,7 @@ function DraggableActivityCard({ activity, isAI = false }) {
   )
 }
 
-function ActivityBrowser({ activities, aiActivities }) {
+function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) {
   const [activeTab, setActiveTab] = useState('normal')
   const [aiSearch, setAiSearch] = useState('')
   const [generatedActivities, setGeneratedActivities] = useState([])
@@ -105,6 +105,10 @@ function ActivityBrowser({ activities, aiActivities }) {
       // Use client-side AI service
       const activities = await aiService.generateActivitiesAsync(query, 'All', 4)
       setGeneratedActivities(activities)
+      // Pass generated activities to parent
+      if (onAiActivitiesGenerated) {
+        onAiActivitiesGenerated(activities)
+      }
     } catch (error) {
       console.error('Error generating activities:', error)
       // Fallback to static activities

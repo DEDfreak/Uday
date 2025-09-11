@@ -129,10 +129,12 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
   }
 
   const handleRemoveActivity = (activityId) => {
+    console.log('Removing activity:', activityId)
     const newPlan = { ...weekendPlan }
     Object.keys(newPlan).forEach(dayKey => {
       newPlan[dayKey] = newPlan[dayKey].filter(activity => activity.id !== activityId)
     })
+    console.log('New plan after removal:', newPlan)
     onWeekendPlanChange(newPlan)
   }
 

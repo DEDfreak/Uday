@@ -1,10 +1,13 @@
 
 import { useState, useEffect, useRef } from 'react'
+import aiService from '../services/aiService'
 
 const categories = ['All', 'Relaxing', 'Adventurous', 'Cozy', 'Social', 'Creative']
 
 function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNewActivityChange, onAddActivity, weekendDays, selectedDate, focusActivityName, onFocusActivityName }) {
   const activityNameRef = useRef(null)
+  const [aiSuggestions, setAiSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   useEffect(() => {
     if (focusActivityName && activityNameRef.current) {
@@ -12,6 +15,48 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
       onFocusActivityName()
     }
   }, [focusActivityName, onFocusActivityName])
+
+  const handleActivityNameChange = async (e) => {
+    const value = e.target.value
+    onNewActivityChange({ ...newActivity, name: value })
+    
+    if (value.length > 2) {
+      try {
+        const suggestions = await aiService.generateActivities(value, newActivity.category || 'All', 3)
+        setAiSuggestions(suggestions)
+        setShowSuggestions(true)
+      } catch (error) {
+        console.error('Error generating suggestions:', error)
+      }
+    } else {
+      setShowSuggestions(false)
+      setAiSuggestions([])
+    }
+  }
+
+  const selectSuggestion = (suggestion) => {
+    onNewActivityChange({
+      ...newActivity,
+      name: suggestion.title,
+      description: suggestion.description,
+      category: suggestion.category
+    })
+    setShowSuggestions(false)
+  }
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activityNameRef.current && !activityNameRef.current.contains(event.target)) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
   return (
     <>
       {/* Mobile backdrop */}
@@ -77,7 +122,7 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
 
           <h3 className="text-lg font-bold text-[var(--text-primary)]">Add New Activity</h3>
           
-          <div>
+          <div className="relative">
             <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="activityName">Activity Name</label>
             <input 
               ref={activityNameRef}
@@ -85,8 +130,30 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
               id="activityName" 
               type="text"
               value={newActivity.name}
-              onChange={(e) => onNewActivityChange({ ...newActivity, name: e.target.value })}
+              onChange={handleActivityNameChange}
+              placeholder="Type to get AI suggestions..."
             />
+            
+            {/* AI Suggestions Dropdown */}
+            {showSuggestions && aiSuggestions.length > 0 && (
+              <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-[var(--border-color)] max-h-60 overflow-y-auto">
+                <div className="p-2 text-xs text-[var(--text-secondary)] font-medium border-b border-[var(--border-color)]">
+                  <span className="material-symbols-outlined text-sm mr-1">auto_awesome</span>
+                  AI Suggestions
+                </div>
+                {aiSuggestions.map((suggestion, index) => (
+                  <button
+                    key={suggestion.id || index}
+                    onClick={() => selectSuggestion(suggestion)}
+                    className="w-full text-left p-3 hover:bg-[var(--bg-secondary)] transition-colors border-b border-[var(--border-color)] last:border-b-0"
+                  >
+                    <div className="font-medium text-[var(--text-primary)]">{suggestion.title}</div>
+                    <div className="text-sm text-[var(--text-secondary)] mt-1">{suggestion.description}</div>
+                    <div className="text-xs text-[var(--primary-color)] mt-1 font-medium">{suggestion.category}</div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

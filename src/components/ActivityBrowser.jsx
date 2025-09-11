@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDraggable } from '@dnd-kit/core'
+import aiService from '../services/aiService'
 
 function DraggableActivityCard({ activity, isAI = false }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -53,11 +54,88 @@ function DraggableActivityCard({ activity, isAI = false }) {
 function ActivityBrowser({ activities, aiActivities }) {
   const [activeTab, setActiveTab] = useState('normal')
   const [aiSearch, setAiSearch] = useState('')
+  const [generatedActivities, setGeneratedActivities] = useState([])
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  const getNextLongWeekend = () => {
+    const today = new Date()
+    const currentYear = today.getFullYear()
+    
+    // Common long weekends in 2024-2025
+    const longWeekends = [
+      { name: 'New Year\'s Day', date: new Date(currentYear, 0, 1) },
+      { name: 'Martin Luther King Jr. Day', date: new Date(currentYear, 0, 15) },
+      { name: 'Presidents\' Day', date: new Date(currentYear, 1, 19) },
+      { name: 'Memorial Day', date: new Date(currentYear, 4, 27) },
+      { name: 'Independence Day', date: new Date(currentYear, 6, 4) },
+      { name: 'Labor Day', date: new Date(currentYear, 8, 2) },
+      { name: 'Thanksgiving', date: new Date(currentYear, 10, 28) },
+      { name: 'Christmas Day', date: new Date(currentYear, 11, 25) },
+    ]
+    
+    // Add next year's holidays if we're past this year's
+    if (today.getMonth() > 10) {
+      longWeekends.push(
+        { name: 'New Year\'s Day', date: new Date(currentYear + 1, 0, 1) },
+        { name: 'Martin Luther King Jr. Day', date: new Date(currentYear + 1, 0, 15) },
+        { name: 'Presidents\' Day', date: new Date(currentYear + 1, 1, 19) },
+        { name: 'Memorial Day', date: new Date(currentYear + 1, 4, 27) },
+        { name: 'Independence Day', date: new Date(currentYear + 1, 6, 4) },
+        { name: 'Labor Day', date: new Date(currentYear + 1, 8, 2) },
+        { name: 'Thanksgiving', date: new Date(currentYear + 1, 10, 28) },
+        { name: 'Christmas Day', date: new Date(currentYear + 1, 11, 25) }
+      )
+    }
+    
+    // Find the next long weekend
+    const nextLongWeekend = longWeekends
+      .filter(holiday => holiday.date > today)
+      .sort((a, b) => a.date - b.date)[0]
+    
+    return nextLongWeekend
+  }
+
+  const nextLongWeekend = getNextLongWeekend()
+
+  const generateAIActivities = async (query) => {
+    if (!query.trim()) return
+    
+    setIsGenerating(true)
+    try {
+      // Use client-side AI service
+      const activities = await aiService.generateActivitiesAsync(query, 'All', 4)
+      setGeneratedActivities(activities)
+    } catch (error) {
+      console.error('Error generating activities:', error)
+      // Fallback to static activities
+      setGeneratedActivities(aiActivities)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleAISearch = (e) => {
+    const query = e.target.value
+    setAiSearch(query)
+    
+    // Debounce the search
+    const timeoutId = setTimeout(() => {
+      if (query.trim()) {
+        generateAIActivities(query)
+      } else {
+        setGeneratedActivities([])
+      }
+    }, 500)
+    
+    return () => clearTimeout(timeoutId)
+  }
 
   const filteredAiActivities = aiActivities.filter(activity =>
     activity.title.toLowerCase().includes(aiSearch.toLowerCase()) ||
     activity.description.toLowerCase().includes(aiSearch.toLowerCase())
   )
+
+  const displayActivities = activeTab === 'ai' ? generatedActivities : filteredAiActivities
 
   return (
     <>
@@ -128,14 +206,27 @@ function ActivityBrowser({ activities, aiActivities }) {
               placeholder="Enter a topic, e.g., 'Rainy day activities for kids'" 
               type="text"
               value={aiSearch}
-              onChange={(e) => setAiSearch(e.target.value)}
+              onChange={handleAISearch}
             />
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredAiActivities.map(activity => (
-              <DraggableActivityCard key={activity.id} activity={activity} isAI />
-            ))}
+            {isGenerating ? (
+              <div className="col-span-full flex items-center justify-center py-8">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary-color)] mx-auto mb-2"></div>
+                  <p className="text-[var(--text-secondary)]">Generating activities...</p>
+                </div>
+              </div>
+            ) : displayActivities.length > 0 ? (
+              displayActivities.map(activity => (
+                <DraggableActivityCard key={activity.id} activity={activity} isAI />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8">
+                <p className="text-[var(--text-secondary)]">No activities found. Try searching for something else!</p>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -148,7 +239,12 @@ function ActivityBrowser({ activities, aiActivities }) {
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="text-center md:text-left">
                 <h3 className="text-2xl font-bold text-yellow-900">Long Weekend Alert!</h3>
-                <p className="text-yellow-800 mt-1">Thanksgiving is coming up. Time for a 4-day plan!</p>
+                <p className="text-yellow-800 mt-1">
+                  {nextLongWeekend 
+                    ? `${nextLongWeekend.name} is coming up on ${nextLongWeekend.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}. Time for a 4-day plan!`
+                    : 'No upcoming long weekends found.'
+                  }
+                </p>
               </div>
               <button className="flex-shrink-0 rounded-full bg-white px-6 py-3 font-bold text-yellow-900 shadow-md transition-transform hover:scale-105 hover:bg-yellow-50">
                 Plan Now

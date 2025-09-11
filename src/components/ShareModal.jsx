@@ -49,7 +49,13 @@ function ShareModal({ isOpen, onClose, weekendPlan }) {
         const canvas = await html2canvas(planRef.current, {
           scale: 2,
           useCORS: true,
-          backgroundColor: '#fcfcf8'
+          backgroundColor: '#fcfcf8',
+          allowTaint: true,
+          foreignObjectRendering: true,
+          ignoreElements: (element) => {
+            // Skip elements with problematic CSS
+            return element.classList?.contains('material-symbols-outlined')
+          }
         })
         
         // Create download link
@@ -59,7 +65,21 @@ function ShareModal({ isOpen, onClose, weekendPlan }) {
         link.click()
       } catch (error) {
         console.error('Error generating PNG:', error)
-        alert('Error generating PNG. Please try again.')
+        // Fallback: try with simpler options
+        try {
+          const canvas = await html2canvas(planRef.current, {
+            scale: 1,
+            backgroundColor: '#ffffff',
+            allowTaint: true
+          })
+          const link = document.createElement('a')
+          link.download = 'weekend-plan.png'
+          link.href = canvas.toDataURL('image/png')
+          link.click()
+        } catch (fallbackError) {
+          console.error('Fallback PNG generation failed:', fallbackError)
+          alert('Error generating PNG. Please try again.')
+        }
       }
     }
   }

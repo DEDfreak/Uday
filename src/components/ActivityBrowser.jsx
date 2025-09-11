@@ -1,0 +1,164 @@
+import { useState } from 'react'
+import { useDraggable } from '@dnd-kit/core'
+
+function DraggableActivityCard({ activity, isAI = false }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: activity.id,
+  })
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined
+
+  const categoryColors = {
+    'Relaxing': 'bg-[var(--primary-color)] text-[var(--text-primary)]',
+    'Adventurous': 'bg-[#e6f5c8] text-[#4d6613]',
+    'Cozy': 'bg-[#dbeafe] text-[#1e40af]',
+    'Social': 'bg-[#fee2e2] text-[#991b1b]',
+    'Creative': 'bg-[#fef3c7] text-[#92400e]'
+  }
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      {...listeners} 
+      {...attributes}
+      className={`group snap-center shrink-0 cursor-grab rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 w-[280px] ${isDragging ? 'opacity-50' : ''}`}
+    >
+      <div className="relative">
+        <div className="aspect-[4/3] w-full overflow-hidden rounded-xl">
+          <div 
+            className="h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105" 
+            style={{ backgroundImage: `url("${activity.image}")` }}
+          />
+        </div>
+        {isAI ? (
+          <span className="absolute top-2 right-2 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-800 shadow-sm flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+            AI
+          </span>
+        ) : (
+          <span className={`absolute top-2 right-2 rounded-full px-3 py-1 text-xs font-bold shadow-sm ${categoryColors[activity.category] || 'bg-gray-200 text-gray-800'}`}>
+            {activity.category}
+          </span>
+        )}
+      </div>
+      <h3 className="mt-4 text-lg font-bold">{activity.title}</h3>
+      <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
+    </div>
+  )
+}
+
+function ActivityBrowser({ activities, aiActivities }) {
+  const [activeTab, setActiveTab] = useState('normal')
+  const [aiSearch, setAiSearch] = useState('')
+
+  const filteredAiActivities = aiActivities.filter(activity =>
+    activity.title.toLowerCase().includes(aiSearch.toLowerCase()) ||
+    activity.description.toLowerCase().includes(aiSearch.toLowerCase())
+  )
+
+  return (
+    <>
+      <section className="mb-16">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <h3 className="text-2xl font-bold tracking-tight">Browse Activities</h3>
+            <div className="flex items-center rounded-full bg-[var(--bg-secondary)] p-1">
+              <button 
+                className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+                  activeTab === 'normal' 
+                    ? 'bg-white text-[var(--text-primary)] shadow-sm' 
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+                onClick={() => setActiveTab('normal')}
+              >
+                Normal
+              </button>
+              <button 
+                className={`flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+                  activeTab === 'ai' 
+                    ? 'bg-white text-[var(--text-primary)] shadow-sm' 
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+                onClick={() => setActiveTab('ai')}
+              >
+                <span className="material-symbols-outlined text-base">auto_awesome</span>
+                AI
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors">
+              <span className="material-symbols-outlined text-[var(--text-primary)]">arrow_back</span>
+            </button>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors">
+              <span className="material-symbols-outlined text-[var(--text-primary)]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        {activeTab === 'normal' && (
+          <div className="relative">
+            <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 space-x-6">
+              {activities.map(activity => (
+                <DraggableActivityCard key={activity.id} activity={activity} />
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {activeTab === 'ai' && (
+        <section className="mb-16">
+          <div className="flex items-center gap-4 mb-6">
+            <h3 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              <span className="material-symbols-outlined text-3xl text-[var(--primary-color)]">auto_awesome</span>
+              AI Generated Activities
+            </h3>
+          </div>
+          
+          <div className="relative mb-6">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-[var(--text-secondary)]">search</span>
+            <input 
+              className="w-full rounded-full border-[var(--border-color)] bg-[var(--bg-secondary)] py-3 pl-12 pr-4 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
+              id="ai-search" 
+              placeholder="Enter a topic, e.g., 'Rainy day activities for kids'" 
+              type="text"
+              value={aiSearch}
+              onChange={(e) => setAiSearch(e.target.value)}
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredAiActivities.map(activity => (
+              <DraggableActivityCard key={activity.id} activity={activity} isAI />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <footer className="w-full mt-auto">
+        <div className="mx-auto max-w-7xl px-6 py-12">
+          <div className="relative rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 p-8 shadow-lg overflow-hidden">
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/20 rounded-full"></div>
+            <div className="absolute -bottom-16 -left-8 w-40 h-40 bg-white/20 rounded-full"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-center md:text-left">
+                <h3 className="text-2xl font-bold text-yellow-900">Long Weekend Alert!</h3>
+                <p className="text-yellow-800 mt-1">Thanksgiving is coming up. Time for a 4-day plan!</p>
+              </div>
+              <button className="flex-shrink-0 rounded-full bg-white px-6 py-3 font-bold text-yellow-900 shadow-md transition-transform hover:scale-105 hover:bg-yellow-50">
+                Plan Now
+              </button>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
+  )
+}
+
+export default ActivityBrowser

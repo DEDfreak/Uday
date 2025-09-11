@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+@import "tailwindcss";
+
+:root {
+  --primary-color: #f9f506;
+  --text-primary: #1c1c0d;
+  --text-secondary: #6e6d5a;
+  --bg-primary: #fcfcf8;
+  --bg-secondary: #f4f4e6;
+  --border-color: #e5e5d1;
+}
+
+body {
+  margin: 0;
+  font-family: 'Spline Sans', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.drag-ghost {
+  @apply opacity-50 border-2 border-dashed border-yellow-400;
+}
+
+.carousel-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.carousel-container::-webkit-scrollbar {
+  display: none;
+}

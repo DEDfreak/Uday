@@ -61,9 +61,12 @@ function DraggableActivityCard({ activity, dayIndex, onRemove }) {
   )
 }
 
-function EmptySlot() {
+function EmptySlot({ onAddActivity }) {
   return (
-    <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-[var(--border-color)] bg-white/50 p-6 text-center">
+    <div 
+      className="flex items-center justify-center rounded-xl border-2 border-dashed border-[var(--border-color)] bg-white/50 p-6 text-center cursor-pointer hover:bg-white/70 transition-colors"
+      onClick={onAddActivity}
+    >
       <div className="text-[var(--text-secondary)]">
         <span className="material-symbols-outlined text-4xl">add_box</span>
         <p className="mt-2 text-sm font-medium">Drag an activity here or add a new one</p>
@@ -72,7 +75,7 @@ function EmptySlot() {
   )
 }
 
-function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendPlanChange, selectedDate, onSelectedDateChange }) {
+function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendPlanChange, selectedDate, onSelectedDateChange, onOpenSidebar, onFocusActivityName }) {
   const [showCalendar, setShowCalendar] = useState(false)
   const [currentDayIndex, setCurrentDayIndex] = useState(0)
 
@@ -156,6 +159,13 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
     setCurrentDayIndex(prev => Math.max(prev - 2, 0))
   }
 
+  const handleAddActivity = () => {
+    onOpenSidebar()
+    setTimeout(() => {
+      onFocusActivityName()
+    }, 300) // Wait for sidebar animation
+  }
+
   return (
     <>
       <div className="mb-12 text-center">
@@ -185,6 +195,7 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
                   type="date"
                   value={selectedDate.toISOString().split('T')[0]}
                   onChange={handleDateChange}
+                  min={new Date().toISOString().split('T')[0]}
                   className="w-full p-2 border border-[var(--border-color)] rounded focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]"
                 />
               </div>
@@ -224,7 +235,7 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
                     onRemove={handleRemoveActivity}
                   />
                 ))}
-                <EmptySlot />
+                <EmptySlot onAddActivity={handleAddActivity} />
               </DropZone>
             </div>
           ))}
@@ -285,7 +296,7 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
                         onRemove={handleRemoveActivity}
                       />
                     ))}
-                    <EmptySlot />
+                    <EmptySlot onAddActivity={handleAddActivity} />
                   </DropZone>
                 </div>
               )

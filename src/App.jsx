@@ -125,6 +125,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [weekendDays, setWeekendDays] = useState(2)
   const [activeId, setActiveId] = useState(null)
+  const [focusActivityName, setFocusActivityName] = useState(false)
 
   const handleDragStart = (event) => {
     setActiveId(event.active.id)
@@ -221,36 +222,40 @@ function App() {
         onAddActivity={addNewActivity}
         weekendDays={weekendDays}
         selectedDate={selectedDate}
+        focusActivityName={focusActivityName}
+        onFocusActivityName={() => setFocusActivityName(false)}
       />
       
-      <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out lg:ml-72">
-        <Header 
-          onMenuClick={() => setSidebarOpen(true)}
-          onShareClick={() => setShareModalOpen(true)}
-        />
-        
-        <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
-          <WeekendPlan 
-            weekendPlan={weekendPlan}
-            weekendDays={weekendDays}
-            onWeekendDaysChange={setWeekendDays}
-            onWeekendPlanChange={setWeekendPlan}
-            selectedDate={selectedDate}
-            onSelectedDateChange={setSelectedDate}
-          />
-          
-          <ActivityBrowser 
-            activities={filteredActivities}
-            aiActivities={aiGeneratedActivities}
-          />
-        </main>
-      </div>
-
       <DndContext 
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
+        <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out lg:ml-72">
+          <Header 
+            onMenuClick={() => setSidebarOpen(true)}
+            onShareClick={() => setShareModalOpen(true)}
+          />
+          
+          <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
+            <WeekendPlan 
+              weekendPlan={weekendPlan}
+              weekendDays={weekendDays}
+              onWeekendDaysChange={setWeekendDays}
+              onWeekendPlanChange={setWeekendPlan}
+              selectedDate={selectedDate}
+              onSelectedDateChange={setSelectedDate}
+              onOpenSidebar={() => setSidebarOpen(true)}
+              onFocusActivityName={() => setFocusActivityName(true)}
+            />
+            
+            <ActivityBrowser 
+              activities={filteredActivities}
+              aiActivities={aiGeneratedActivities}
+            />
+          </main>
+        </div>
+
         <DragOverlay>
           {activeId ? (
             <div className="drag-ghost rounded-xl bg-white p-4 shadow-lg">

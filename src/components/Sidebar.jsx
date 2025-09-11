@@ -1,9 +1,17 @@
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const categories = ['All', 'Relaxing', 'Adventurous', 'Cozy', 'Social', 'Creative']
 
-function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNewActivityChange, onAddActivity, weekendDays, selectedDate }) {
+function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNewActivityChange, onAddActivity, weekendDays, selectedDate, focusActivityName, onFocusActivityName }) {
+  const activityNameRef = useRef(null)
+
+  useEffect(() => {
+    if (focusActivityName && activityNameRef.current) {
+      activityNameRef.current.focus()
+      onFocusActivityName()
+    }
+  }, [focusActivityName, onFocusActivityName])
   return (
     <>
       {/* Mobile backdrop */}
@@ -72,6 +80,7 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
           <div>
             <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="activityName">Activity Name</label>
             <input 
+              ref={activityNameRef}
               className="mt-1 block w-full rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 px-3 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
               id="activityName" 
               type="text"

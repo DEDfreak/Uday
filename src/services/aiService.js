@@ -367,3 +367,4 @@ class AIService {
 
 // Export singleton instance
 export default new AIService()
+

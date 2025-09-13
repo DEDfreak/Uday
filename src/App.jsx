@@ -293,7 +293,7 @@ function App() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-1 flex-col min-w-0 transition-all duration-300 ease-in-out lg:ml-72">
+        <div className="flex flex-1 flex-col min-w-0 transition-all duration-300 ease-in-out lg:ml-80">
           <Header 
             onMenuClick={() => setSidebarOpen(true)}
             onShareClick={() => setShareModalOpen(true)}

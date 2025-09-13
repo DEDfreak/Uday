@@ -22,7 +22,7 @@ function Sidebar({ isOpen, onClose, newActivity, onNewActivityChange, onAddActiv
         />
       )}
       
-      <aside className={`fixed inset-y-0 left-0 z-20 flex w-64 sm:w-72 md:w-80 lg:w-72 xl:w-80 transform flex-col border-r border-[var(--border-color)] bg-[var(--bg-primary)] p-3 sm:p-4 md:p-5 lg:p-6 shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-20 flex w-72 lg:w-80 transform flex-col border-r border-[var(--border-color)] bg-[var(--bg-primary)] p-4 lg:p-6 shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Close button - visible only when sidebar slides over content (hidden on lg+) */}
         <button 
           className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"

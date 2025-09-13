@@ -25,7 +25,7 @@ function DraggableActivityCard({ activity, isAI = false }) {
       style={{...style, touchAction: 'none'}} 
       {...listeners} 
       {...attributes}
-      className={`group snap-center shrink-0 cursor-grab rounded-2xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 w-[240px] sm:w-[260px] md:w-[280px] select-none ${isDragging ? 'opacity-50' : ''}`}
+      className={`group snap-center shrink-0 cursor-grab rounded-2xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 w-[240px] sm:w-[260px] md:w-[280px] lg:w-[300px] select-none ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="relative">
         <div className="aspect-[4/3] w-full overflow-hidden rounded-xl">
@@ -45,8 +45,8 @@ function DraggableActivityCard({ activity, isAI = false }) {
           </span>
         )}
       </div>
-      <h3 className="mt-4 text-lg font-bold">{activity.title}</h3>
-      <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
+      <h3 className="mt-4 text-lg font-bold leading-tight line-clamp-2">{activity.title}</h3>
+      <p className="text-sm text-[var(--text-secondary)] mt-2 line-clamp-3 leading-relaxed">{activity.description}</p>
     </div>
   )
 }
@@ -161,7 +161,7 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated, on
 
   return (
     <>
-      <section className="mb-16">
+      <section className="mb-16 px-2 sm:px-4">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Browse Activities</h3>
@@ -208,7 +208,7 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated, on
 
         {activeTab === 'normal' && (
           <div className="relative w-full">
-            <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 space-x-4 sm:space-x-6 w-full">
+            <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 gap-4 sm:gap-6 w-full px-2 sm:px-4">
               {activities.map(activity => (
                 <DraggableActivityCard key={activity.id} activity={activity} />
               ))}
@@ -218,7 +218,7 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated, on
       </section>
 
       {activeTab === 'ai' && (
-        <section className="mb-16">
+        <section className="mb-16 px-2 sm:px-4">
           <div className="flex items-center gap-4 mb-6">
             <h3 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
               <span className="material-symbols-outlined text-3xl text-[var(--primary-color)]">auto_awesome</span>
@@ -226,16 +226,35 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated, on
             </h3>
           </div>
           
-          <div className="relative mb-6">
-            <span className="material-symbols-outlined absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-xl sm:text-2xl text-[var(--text-secondary)]">search</span>
-            <input 
-              className="w-full rounded-full border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 sm:py-3 pl-10 sm:pl-12 pr-4 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
-              id="ai-search" 
-              placeholder="Enter a topic, e.g., 'Rainy day activities for kids'" 
-              type="text"
-              value={aiSearch}
-              onChange={handleAISearch}
-            />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative flex-1">
+              <span className="material-symbols-outlined absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-xl sm:text-2xl text-[var(--text-secondary)]">search</span>
+              <input 
+                className="w-full rounded-full border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 sm:py-3 pl-10 sm:pl-12 pr-4 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
+                id="ai-search" 
+                placeholder="Enter a topic, e.g., 'Rainy day activities for kids'" 
+                type="text"
+                value={aiSearch}
+                onChange={handleAISearch}
+              />
+            </div>
+            
+            {displayActivities.length > 0 && (
+              <div className="flex items-center gap-2">
+                <button 
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors"
+                  onClick={() => scrollCarousel('left')}
+                >
+                  <span className="material-symbols-outlined text-[var(--text-primary)]">arrow_back</span>
+                </button>
+                <button 
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors"
+                  onClick={() => scrollCarousel('right')}
+                >
+                  <span className="material-symbols-outlined text-[var(--text-primary)]">arrow_forward</span>
+                </button>
+              </div>
+            )}
           </div>
           
           {isGenerating ? (
@@ -246,23 +265,13 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated, on
               </div>
             </div>
           ) : displayActivities.length > 0 ? (
-            <>
-              {/* Mobile: horizontal carousel */}
-              <div className="md:hidden relative w-full">
-                <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 space-x-4 sm:space-x-6 w-full">
-                  {displayActivities.map(activity => (
-                    <DraggableActivityCard key={activity.id} activity={activity} isAI />
-                  ))}
-                </div>
-              </div>
-
-              {/* md+: grid layout */}
-              <div className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+            <div className="relative w-full">
+              <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 gap-4 sm:gap-6 w-full px-2 sm:px-4">
                 {displayActivities.map(activity => (
                   <DraggableActivityCard key={activity.id} activity={activity} isAI />
                 ))}
               </div>
-            </>
+            </div>
           ) : (
             <div className="col-span-full text-center py-8">
               <p className="text-[var(--text-secondary)]">No activities found. Try searching for something else!</p>

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 
 const categories = ['All', 'Relaxing', 'Adventurous', 'Cozy', 'Social', 'Creative']
 
-function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNewActivityChange, onAddActivity, weekendDays, selectedDate, focusActivityName, onFocusActivityName }) {
+function Sidebar({ isOpen, onClose, newActivity, onNewActivityChange, onAddActivity, weekendDays, selectedDate, focusActivityName, onFocusActivityName }) {
   const activityNameRef = useRef(null)
 
   useEffect(() => {
@@ -46,37 +46,7 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
         </div>
 
         <form className="flex flex-col space-y-3 sm:space-y-4 md:space-y-5" onSubmit={(e) => e.preventDefault()}>
-          <h3 className="text-base sm:text-lg md:text-xl font-bold text-[var(--text-primary)]">Filter Activities</h3>
-          
-          <div>
-            <label className="text-xs sm:text-sm md:text-base font-medium text-[var(--text-secondary)]" htmlFor="category">Category</label>
-            <select 
-              className="mt-1 block w-full rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-1.5 sm:py-2 md:py-2.5 px-2 sm:px-3 md:px-4 text-xs sm:text-sm md:text-base text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
-              id="category"
-              value={filters.category}
-              onChange={(e) => onFiltersChange({ ...filters, category: e.target.value })}
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="search">Search</label>
-            <input 
-              className="mt-1 block w-full rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 px-3 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
-              id="search" 
-              placeholder="e.g. Brunch, Hiking" 
-              type="text"
-              value={filters.search}
-              onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
-            />
-          </div>
-
-          <hr className="border-t border-[var(--border-color)] my-6"/>
-
-          <h3 className="text-lg font-bold text-[var(--text-primary)]">Add New Activity</h3>
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-[var(--text-primary)]">Add New Activity</h3>
           
           <div>
             <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="activityName">Activity Name</label>

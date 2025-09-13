@@ -112,10 +112,6 @@ function App() {
   const [weekendPlan, setWeekendPlan] = useState(initialWeekendPlan)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    category: 'All',
-    search: ''
-  })
   const [newActivity, setNewActivity] = useState({
     name: '',
     description: '',
@@ -207,20 +203,12 @@ function App() {
     setAiGeneratedActivities(newActivities)
   }
 
-  const filteredActivities = activities.filter(activity => {
-    const matchesCategory = filters.category === 'All' || activity.category === filters.category
-    const matchesSearch = activity.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-                         activity.description.toLowerCase().includes(filters.search.toLowerCase())
-    return matchesCategory && matchesSearch
-  })
 
   return (
     <div className="relative flex min-h-screen w-full overflow-x-hidden">
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        filters={filters}
-        onFiltersChange={setFilters}
         newActivity={newActivity}
         onNewActivityChange={setNewActivity}
         onAddActivity={addNewActivity}
@@ -255,11 +243,11 @@ function App() {
                 onFocusActivityName={() => setFocusActivityName(true)}
               />
               
-              <ActivityBrowser 
-                activities={filteredActivities}
-                aiActivities={aiGeneratedActivities}
-                onAiActivitiesGenerated={handleAiActivitiesGenerated}
-              />
+            <ActivityBrowser 
+              activities={activities}
+              aiActivities={aiGeneratedActivities}
+              onAiActivitiesGenerated={handleAiActivitiesGenerated}
+            />
             </div>
           </main>
         </div>

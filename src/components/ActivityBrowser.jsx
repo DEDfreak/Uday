@@ -51,7 +51,7 @@ function DraggableActivityCard({ activity, isAI = false }) {
   )
 }
 
-function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) {
+function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated, onPlanNow }) {
   const [activeTab, setActiveTab] = useState('normal')
   const [aiSearch, setAiSearch] = useState('')
   const [generatedActivities, setGeneratedActivities] = useState([])
@@ -238,24 +238,36 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
             />
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-            {isGenerating ? (
-              <div className="col-span-full flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary-color)] mx-auto mb-2"></div>
-                  <p className="text-[var(--text-secondary)]">Generating activities...</p>
+          {isGenerating ? (
+            <div className="col-span-full flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary-color)] mx-auto mb-2"></div>
+                <p className="text-[var(--text-secondary)]">Generating activities...</p>
+              </div>
+            </div>
+          ) : displayActivities.length > 0 ? (
+            <>
+              {/* Mobile: horizontal carousel */}
+              <div className="md:hidden relative w-full">
+                <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 space-x-4 sm:space-x-6 w-full">
+                  {displayActivities.map(activity => (
+                    <DraggableActivityCard key={activity.id} activity={activity} isAI />
+                  ))}
                 </div>
               </div>
-            ) : displayActivities.length > 0 ? (
-              displayActivities.map(activity => (
-                <DraggableActivityCard key={activity.id} activity={activity} isAI />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8">
-                <p className="text-[var(--text-secondary)]">No activities found. Try searching for something else!</p>
+
+              {/* md+: grid layout */}
+              <div className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                {displayActivities.map(activity => (
+                  <DraggableActivityCard key={activity.id} activity={activity} isAI />
+                ))}
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-[var(--text-secondary)]">No activities found. Try searching for something else!</p>
+            </div>
+          )}
         </section>
       )}
 
@@ -274,7 +286,10 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
                   }
                 </p>
               </div>
-              <button className="flex-shrink-0 rounded-full bg-white px-6 py-3 font-bold text-yellow-900 shadow-md transition-transform hover:scale-105 hover:bg-yellow-50">
+              <button 
+                className="flex-shrink-0 rounded-full bg-white px-6 py-3 font-bold text-yellow-900 shadow-md transition-transform hover:scale-105 hover:bg-yellow-50"
+                onClick={() => onPlanNow?.(nextLongWeekend?.date)}
+              >
                 Plan Now
               </button>
             </div>

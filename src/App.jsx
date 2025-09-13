@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
+import { useEffect, useState } from 'react'
+import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
@@ -122,6 +122,51 @@ function App() {
   const [weekendDays, setWeekendDays] = useState(2)
   const [activeId, setActiveId] = useState(null)
   const [focusActivityName, setFocusActivityName] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  // Load persisted state on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('weekendly_state_v1')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (parsed.weekendPlan) setWeekendPlan(parsed.weekendPlan)
+        if (parsed.weekendDays) setWeekendDays(parsed.weekendDays)
+        if (parsed.selectedDate) setSelectedDate(new Date(parsed.selectedDate))
+      }
+    } catch (e) {
+      console.error('Failed to load saved state', e)
+    }
+    setIsHydrated(true)
+  }, [])
+
+  // Persist key pieces of state
+  useEffect(() => {
+    if (!isHydrated) return
+    try {
+      localStorage.setItem('weekendly_state_v1', JSON.stringify({
+        weekendPlan,
+        weekendDays,
+        selectedDate: selectedDate?.toISOString?.() || null
+      }))
+    } catch (e) {
+      console.error('Failed to save state', e)
+    }
+  }, [isHydrated, weekendPlan, weekendDays, selectedDate])
+
+  const handlePlanNow = (date) => {
+    if (date) {
+      setSelectedDate(new Date(date))
+      window?.scrollTo?.({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  // Enable touch-friendly dragging on mobile
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 }
+    })
+  )
 
   const handleDragStart = (event) => {
     setActiveId(event.active.id)
@@ -154,6 +199,14 @@ function App() {
               newPlan[fromDayKey] = newPlan[fromDayKey].filter(a => a.id !== activityId)
               newPlan[dayKey] = [...(newPlan[dayKey] || []), activity]
               setWeekendPlan(newPlan)
+              // Persist immediately
+              try {
+                localStorage.setItem('weekendly_state_v1', JSON.stringify({
+                  weekendPlan: newPlan,
+                  weekendDays,
+                  selectedDate: selectedDate?.toISOString?.() || null
+                }))
+              } catch {}
             }
           }
         } else {
@@ -161,15 +214,23 @@ function App() {
           const activity = [...activities, ...aiGeneratedActivities].find(a => a.id === active.id)
           
           if (activity && !weekendPlan[dayKey]?.find(a => a.id === activity.id)) {
-            setWeekendPlan(prev => ({
-              ...prev,
-              [dayKey]: [...(prev[dayKey] || []), {
+            const updated = {
+              ...weekendPlan,
+              [dayKey]: [...(weekendPlan[dayKey] || []), {
                 id: activity.id,
                 title: activity.title,
                 description: activity.description,
                 category: activity.category
               }]
-            }))
+            }
+            setWeekendPlan(updated)
+            try {
+              localStorage.setItem('weekendly_state_v1', JSON.stringify({
+                weekendPlan: updated,
+                weekendDays,
+                selectedDate: selectedDate?.toISOString?.() || null
+              }))
+            } catch {}
           }
         }
       }
@@ -189,10 +250,18 @@ function App() {
       
       // Add to the selected day
       const dayKey = `day${newActivity.selectedDay}`
-      setWeekendPlan(prev => ({
-        ...prev,
-        [dayKey]: [...(prev[dayKey] || []), newActivityData]
-      }))
+      const updated = {
+        ...weekendPlan,
+        [dayKey]: [...(weekendPlan[dayKey] || []), newActivityData]
+      }
+      setWeekendPlan(updated)
+      try {
+        localStorage.setItem('weekendly_state_v1', JSON.stringify({
+          weekendPlan: updated,
+          weekendDays,
+          selectedDate: selectedDate?.toISOString?.() || null
+        }))
+      } catch {}
       
       // Reset form
       setNewActivity({ name: '', description: '', category: '', selectedDay: '' })
@@ -219,6 +288,7 @@ function App() {
       />
       
       <DndContext 
+        sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -247,6 +317,7 @@ function App() {
               activities={activities}
               aiActivities={aiGeneratedActivities}
               onAiActivitiesGenerated={handleAiActivitiesGenerated}
+              onPlanNow={handlePlanNow}
             />
             </div>
           </main>

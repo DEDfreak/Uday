@@ -34,8 +34,8 @@ function DraggableActivityCard({ activity, dayIndex, onRemove }) {
   return (
     <div 
       ref={setNodeRef} 
-      style={style}
-      className={`group cursor-grab rounded-xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-md ${isDragging ? 'opacity-50' : ''}`}
+      style={{ ...style, touchAction: 'none' }}
+      className={`group cursor-grab rounded-xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-md select-none ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="flex items-start gap-2 sm:gap-4">
         <div {...listeners} {...attributes} className="flex items-center">
@@ -117,6 +117,13 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
     const newDate = new Date(event.target.value)
     onSelectedDateChange(newDate)
     setShowCalendar(false)
+    try {
+      localStorage.setItem('weekendly_state_v1', JSON.stringify({
+        weekendPlan,
+        weekendDays,
+        selectedDate: newDate?.toISOString?.() || null
+      }))
+    } catch {}
   }
 
   const handleDaysChange = (newDays) => {
@@ -130,6 +137,13 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
     onWeekendPlanChange(newPlan)
     // Reset carousel to first day
     setCurrentDayIndex(0)
+    try {
+      localStorage.setItem('weekendly_state_v1', JSON.stringify({
+        weekendPlan: newPlan,
+        weekendDays: newDays,
+        selectedDate: selectedDate?.toISOString?.() || null
+      }))
+    } catch {}
   }
 
   const handleRemoveActivity = (activityId) => {
@@ -182,7 +196,7 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
       <div className="mb-8 sm:mb-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full">
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 rounded-lg bg-[var(--bg-secondary)] p-3 shadow-inner w-full sm:w-auto">
           <span className="text-sm sm:text-base font-bold text-[var(--text-primary)]">Selected Weekend:</span>
-          <span className="text-base sm:text-lg font-bold text-[var(--primary-color)]">
+          <span className="text-base sm:text-lg font-bold text-[var(--secondary-color)]">
             {dayNames.length > 1 
               ? `${dayNames[0].date} - ${dayNames[dayNames.length - 1].date}`
               : dayNames[0].date

@@ -22,10 +22,10 @@ function DraggableActivityCard({ activity, isAI = false }) {
   return (
     <div 
       ref={setNodeRef} 
-      style={style} 
+      style={{...style, touchAction: 'none'}} 
       {...listeners} 
       {...attributes}
-      className={`group snap-center shrink-0 cursor-grab rounded-2xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 w-[240px] sm:w-[260px] md:w-[280px] ${isDragging ? 'opacity-50' : ''}`}
+      className={`group snap-center shrink-0 cursor-grab rounded-2xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 w-[240px] sm:w-[260px] md:w-[280px] select-none ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="relative">
         <div className="aspect-[4/3] w-full overflow-hidden rounded-xl">
@@ -56,6 +56,7 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
   const [aiSearch, setAiSearch] = useState('')
   const [generatedActivities, setGeneratedActivities] = useState([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [scrollPosition, setScrollPosition] = useState(0)
 
   const getNextLongWeekend = () => {
     const today = new Date()
@@ -141,6 +142,23 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
 
   const displayActivities = activeTab === 'ai' ? generatedActivities : filteredAiActivities
 
+  const scrollCarousel = (direction) => {
+    const carousel = document.querySelector('.carousel-container')
+    if (carousel) {
+      const cardWidth = 280 // Approximate card width + gap
+      const scrollAmount = cardWidth * 2 // Scroll by 2 cards
+      const newPosition = direction === 'left' 
+        ? Math.max(0, scrollPosition - scrollAmount)
+        : Math.min(carousel.scrollWidth - carousel.clientWidth, scrollPosition + scrollAmount)
+      
+      carousel.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      })
+      setScrollPosition(newPosition)
+    }
+  }
+
   return (
     <>
       <section className="mb-16">
@@ -173,10 +191,16 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
           </div>
           
           <div className="flex items-center gap-2">
-            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors">
+            <button 
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors"
+              onClick={() => scrollCarousel('left')}
+            >
               <span className="material-symbols-outlined text-[var(--text-primary)]">arrow_back</span>
             </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors">
+            <button 
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] transition-colors"
+              onClick={() => scrollCarousel('right')}
+            >
               <span className="material-symbols-outlined text-[var(--text-primary)]">arrow_forward</span>
             </button>
           </div>

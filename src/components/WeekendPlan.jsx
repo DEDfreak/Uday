@@ -209,17 +209,33 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="weekend-days">Number of days:</label>
-          <input 
-            className="w-20 rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 px-3 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
-            id="weekend-days" 
-            type="number" 
-            value={weekendDays}
-            onChange={(e) => handleDaysChange(parseInt(e.target.value) || 2)}
-            min="1"
-            max="7"
-          />
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="weekend-days">Days:</label>
+          <div className="flex items-center border border-[var(--border-color)] rounded-lg bg-[var(--bg-secondary)]">
+            <button 
+              className="px-2 py-2 text-[var(--text-primary)] hover:bg-[var(--border-color)] transition-colors"
+              onClick={() => handleDaysChange(Math.max(1, weekendDays - 1))}
+              type="button"
+            >
+              <span className="material-symbols-outlined text-sm">remove</span>
+            </button>
+            <input 
+              className="w-12 text-center border-0 bg-transparent py-2 text-[var(--text-primary)] focus:outline-none" 
+              id="weekend-days" 
+              type="number" 
+              value={weekendDays}
+              onChange={(e) => handleDaysChange(parseInt(e.target.value) || 1)}
+              min="1"
+              max="7"
+            />
+            <button 
+              className="px-2 py-2 text-[var(--text-primary)] hover:bg-[var(--border-color)] transition-colors"
+              onClick={() => handleDaysChange(Math.min(7, weekendDays + 1))}
+              type="button"
+            >
+              <span className="material-symbols-outlined text-sm">add</span>
+            </button>
+          </div>
         </div>
       </div>
 

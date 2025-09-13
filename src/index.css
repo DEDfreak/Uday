@@ -34,6 +34,19 @@ html {
   @apply opacity-50 border-2 border-dashed border-yellow-400;
 }
 
+/* Prevent scrolling during drag on mobile */
+[data-dnd-kit-dragging] {
+  touch-action: none;
+}
+
+/* Prevent text selection during drag */
+[data-dnd-kit-dragging] * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 .carousel-container {
   -ms-overflow-style: none;
   scrollbar-width: none;

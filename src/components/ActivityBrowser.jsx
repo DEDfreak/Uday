@@ -25,7 +25,7 @@ function DraggableActivityCard({ activity, isAI = false }) {
       style={style} 
       {...listeners} 
       {...attributes}
-      className={`group snap-center shrink-0 cursor-grab rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 w-[280px] ${isDragging ? 'opacity-50' : ''}`}
+      className={`group snap-center shrink-0 cursor-grab rounded-2xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 w-[240px] sm:w-[260px] md:w-[280px] ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="relative">
         <div className="aspect-[4/3] w-full overflow-hidden rounded-xl">
@@ -146,7 +146,7 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
       <section className="mb-16">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <h3 className="text-2xl font-bold tracking-tight">Browse Activities</h3>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight">Browse Activities</h3>
             <div className="flex items-center rounded-full bg-[var(--bg-secondary)] p-1">
               <button 
                 className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors ${
@@ -183,8 +183,8 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
         </div>
 
         {activeTab === 'normal' && (
-          <div className="relative">
-            <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 space-x-6">
+          <div className="relative w-full">
+            <div className="carousel-container flex snap-x snap-mandatory overflow-x-auto pb-6 -mb-6 space-x-4 sm:space-x-6 w-full">
               {activities.map(activity => (
                 <DraggableActivityCard key={activity.id} activity={activity} />
               ))}
@@ -196,16 +196,16 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
       {activeTab === 'ai' && (
         <section className="mb-16">
           <div className="flex items-center gap-4 mb-6">
-            <h3 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
               <span className="material-symbols-outlined text-3xl text-[var(--primary-color)]">auto_awesome</span>
               AI Generated Activities
             </h3>
           </div>
           
           <div className="relative mb-6">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-[var(--text-secondary)]">search</span>
+            <span className="material-symbols-outlined absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-xl sm:text-2xl text-[var(--text-secondary)]">search</span>
             <input 
-              className="w-full rounded-full border-[var(--border-color)] bg-[var(--bg-secondary)] py-3 pl-12 pr-4 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
+              className="w-full rounded-full border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 sm:py-3 pl-10 sm:pl-12 pr-4 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
               id="ai-search" 
               placeholder="Enter a topic, e.g., 'Rainy day activities for kids'" 
               type="text"
@@ -214,7 +214,7 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
             />
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
             {isGenerating ? (
               <div className="col-span-full flex items-center justify-center py-8">
                 <div className="text-center">
@@ -237,13 +237,13 @@ function ActivityBrowser({ activities, aiActivities, onAiActivitiesGenerated }) 
 
       <footer className="w-full mt-auto">
         <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="relative rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 p-8 shadow-lg overflow-hidden">
+          <div className="relative rounded-2xl bg-gradient-to-r from-yellow-300 to-yellow-400 p-4 sm:p-8 shadow-lg overflow-hidden">
             <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/20 rounded-full"></div>
             <div className="absolute -bottom-16 -left-8 w-40 h-40 bg-white/20 rounded-full"></div>
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
               <div className="text-center md:text-left">
-                <h3 className="text-2xl font-bold text-yellow-900">Long Weekend Alert!</h3>
-                <p className="text-yellow-800 mt-1">
+                <h3 className="text-xl sm:text-2xl font-bold text-yellow-900">Long Weekend Alert!</h3>
+                <p className="text-yellow-800 mt-1 text-sm sm:text-base">
                   {nextLongWeekend 
                     ? `${nextLongWeekend.name} is coming up on ${nextLongWeekend.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}. Time for a 4-day plan!`
                     : 'No upcoming long weekends found.'

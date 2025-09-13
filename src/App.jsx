@@ -215,7 +215,7 @@ function App() {
   })
 
   return (
-    <div className="relative flex size-full min-h-screen">
+    <div className="relative flex min-h-screen w-full overflow-x-hidden">
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -235,29 +235,32 @@ function App() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-1 flex-col transition-all duration-300 ease-in-out lg:ml-72">
+        <div className="flex flex-1 flex-col min-w-0 transition-all duration-300 ease-in-out lg:ml-72">
           <Header 
             onMenuClick={() => setSidebarOpen(true)}
             onShareClick={() => setShareModalOpen(true)}
+            sidebarOpen={sidebarOpen}
           />
           
-          <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
-            <WeekendPlan 
-              weekendPlan={weekendPlan}
-              weekendDays={weekendDays}
-              onWeekendDaysChange={setWeekendDays}
-              onWeekendPlanChange={setWeekendPlan}
-              selectedDate={selectedDate}
-              onSelectedDateChange={setSelectedDate}
-              onOpenSidebar={() => setSidebarOpen(true)}
-              onFocusActivityName={() => setFocusActivityName(true)}
-            />
-            
-            <ActivityBrowser 
-              activities={filteredActivities}
-              aiActivities={aiGeneratedActivities}
-              onAiActivitiesGenerated={handleAiActivitiesGenerated}
-            />
+          <main className="w-full flex-1 px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-10">
+            <div className="mx-auto w-full max-w-7xl">
+              <WeekendPlan 
+                weekendPlan={weekendPlan}
+                weekendDays={weekendDays}
+                onWeekendDaysChange={setWeekendDays}
+                onWeekendPlanChange={setWeekendPlan}
+                selectedDate={selectedDate}
+                onSelectedDateChange={setSelectedDate}
+                onOpenSidebar={() => setSidebarOpen(true)}
+                onFocusActivityName={() => setFocusActivityName(true)}
+              />
+              
+              <ActivityBrowser 
+                activities={filteredActivities}
+                aiActivities={aiGeneratedActivities}
+                onAiActivitiesGenerated={handleAiActivitiesGenerated}
+              />
+            </div>
           </main>
         </div>
 

@@ -7,7 +7,7 @@ function DropZone({ id, children }) {
   return (
     <div 
       ref={setNodeRef} 
-      className={`space-y-6 rounded-2xl bg-[var(--bg-secondary)] p-6 shadow-inner ${isOver ? 'ring-2 ring-[var(--primary-color)]' : ''}`}
+      className={`space-y-4 sm:space-y-6 rounded-2xl bg-[var(--bg-secondary)] p-4 sm:p-6 shadow-inner ${isOver ? 'ring-2 ring-[var(--primary-color)]' : ''}`}
     >
       {children}
     </div>
@@ -35,18 +35,18 @@ function DraggableActivityCard({ activity, dayIndex, onRemove }) {
     <div 
       ref={setNodeRef} 
       style={style}
-      className={`group cursor-grab rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md ${isDragging ? 'opacity-50' : ''}`}
+      className={`group cursor-grab rounded-xl bg-white p-3 sm:p-4 shadow-sm transition-all hover:shadow-md ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-2 sm:gap-4">
         <div {...listeners} {...attributes} className="flex items-center">
-          <span className="material-symbols-outlined mt-1 text-2xl text-[var(--text-secondary)]">drag_indicator</span>
+          <span className="material-symbols-outlined mt-1 text-xl sm:text-2xl text-[var(--text-secondary)]">drag_indicator</span>
         </div>
         <div className="flex-1">
           <h4 className="font-bold">{activity.title}</h4>
           <p className="text-sm text-[var(--text-secondary)]">{activity.description}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${categoryColors[activity.category] || 'bg-gray-200 text-gray-800'}`}>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <span className={`rounded-full px-2 sm:px-3 py-1 text-xs font-bold ${categoryColors[activity.category] || 'bg-gray-200 text-gray-800'}`}>
             {activity.category}
           </span>
           <button 
@@ -68,12 +68,12 @@ function DraggableActivityCard({ activity, dayIndex, onRemove }) {
 function EmptySlot({ onAddActivity }) {
   return (
     <div 
-      className="flex items-center justify-center rounded-xl border-2 border-dashed border-[var(--border-color)] bg-white/50 p-6 text-center cursor-pointer hover:bg-white/70 transition-colors"
+      className="flex items-center justify-center rounded-xl border-2 border-dashed border-[var(--border-color)] bg-white/50 p-4 sm:p-6 text-center cursor-pointer hover:bg-white/70 transition-colors"
       onClick={onAddActivity}
     >
       <div className="text-[var(--text-secondary)]">
-        <span className="material-symbols-outlined text-4xl">add_box</span>
-        <p className="mt-2 text-sm font-medium">Drag an activity here or add a new one</p>
+        <span className="material-symbols-outlined text-3xl sm:text-4xl">add_box</span>
+        <p className="mt-2 text-xs sm:text-sm font-medium">Drag an activity here or add a new one</p>
       </div>
     </div>
   )
@@ -175,14 +175,14 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
   return (
     <>
       <div className="mb-12 text-center">
-        <h2 className="text-4xl font-bold tracking-tighter sm:text-5xl">Your Weekend Plan</h2>
-        <p className="mt-4 text-lg text-[var(--text-secondary)]">Drag activities from the list or create new ones to plan your weekend.</p>
+        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tighter">Your Weekend Plan</h2>
+        <p className="mt-2 sm:mt-4 text-sm sm:text-lg text-[var(--text-secondary)]">Drag activities from the list or create new ones to plan your weekend.</p>
       </div>
 
-      <div className="mb-12 flex flex-col sm:flex-row items-center justify-center gap-6">
-        <div className="flex items-center gap-4 rounded-lg bg-[var(--bg-secondary)] p-3 shadow-inner">
-          <span className="font-bold text-[var(--text-primary)]">Selected Weekend:</span>
-          <span className="text-lg font-bold text-[var(--primary-color)]">
+      <div className="mb-8 sm:mb-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 rounded-lg bg-[var(--bg-secondary)] p-3 shadow-inner w-full sm:w-auto">
+          <span className="text-sm sm:text-base font-bold text-[var(--text-primary)]">Selected Weekend:</span>
+          <span className="text-base sm:text-lg font-bold text-[var(--primary-color)]">
             {dayNames.length > 1 
               ? `${dayNames[0].date} - ${dayNames[dayNames.length - 1].date}`
               : dayNames[0].date
@@ -224,10 +224,10 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
       </div>
 
       {weekendDays <= 2 ? (
-        <div className="grid gap-12 grid-cols-1 lg:grid-cols-2">
+        <div className="grid gap-4 sm:gap-8 md:gap-10 lg:gap-12 grid-cols-1 md:grid-cols-2">
           {dayNames.map((day, index) => (
-            <div key={day.id} className="space-y-8">
-              <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
+            <div key={day.id} className="space-y-6 sm:space-y-8">
+              <h3 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold tracking-tight">
                 <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
                 {day.name}, {day.date}
               </h3>
@@ -247,7 +247,7 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
           ))}
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-6 md:space-y-8">
           {/* Carousel Navigation */}
           <div className="flex items-center justify-between">
             <button 
@@ -282,13 +282,13 @@ function WeekendPlan({ weekendPlan, weekendDays, onWeekendDaysChange, onWeekendP
           </div>
 
           {/* Two Day Cards */}
-          <div className="grid gap-12 grid-cols-1 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-8 md:gap-10 lg:gap-12 grid-cols-1 md:grid-cols-2">
             {[currentDayIndex, currentDayIndex + 1].map((dayIndex) => {
               if (dayIndex >= weekendDays) return null
               const day = dayNames[dayIndex]
               return (
-                <div key={day.id} className="space-y-8">
-                  <h3 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
+                <div key={day.id} className="space-y-6 sm:space-y-8">
+                  <h3 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold tracking-tight">
                     <span className="material-symbols-outlined text-4xl text-[var(--primary-color)]">calendar_month</span>
                     {day.name}, {day.date}
                   </h3>

@@ -22,17 +22,17 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
         />
       )}
       
-      <aside className={`fixed inset-y-0 left-0 z-20 flex w-72 transform flex-col border-r border-[var(--border-color)] bg-[var(--bg-primary)] p-6 shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        {/* Close button - always visible */}
+      <aside className={`fixed inset-y-0 left-0 z-20 flex w-64 sm:w-72 md:w-80 lg:w-72 xl:w-80 transform flex-col border-r border-[var(--border-color)] bg-[var(--bg-primary)] p-3 sm:p-4 md:p-5 lg:p-6 shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Close button - visible only when sidebar slides over content (hidden on lg+) */}
         <button 
-          className="absolute top-4 right-4 text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
+          className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
           onClick={onClose}
           title="Close menu"
         >
-          <span className="material-symbols-outlined text-2xl">close</span>
+          <span className="material-symbols-outlined text-lg sm:text-xl md:text-2xl">close</span>
         </button>
-        <div className="flex items-center gap-2.5 mb-8">
-          <svg className="h-8 w-8 text-[var(--primary-color)]" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3 mb-6 sm:mb-8">
+          <svg className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 lg:h-9 lg:w-9 text-[var(--primary-color)]" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <g clipPath="url(#clip0_6_319)">
               <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"></path>
             </g>
@@ -42,16 +42,16 @@ function Sidebar({ isOpen, onClose, filters, onFiltersChange, newActivity, onNew
               </clipPath>
             </defs>
           </svg>
-          <h1 className="text-2xl font-bold tracking-tight">Weekendly</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight">Weekendly</h1>
         </div>
 
-        <form className="flex flex-col space-y-4" onSubmit={(e) => e.preventDefault()}>
-          <h3 className="text-lg font-bold text-[var(--text-primary)]">Filter Activities</h3>
+        <form className="flex flex-col space-y-3 sm:space-y-4 md:space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-[var(--text-primary)]">Filter Activities</h3>
           
           <div>
-            <label className="text-sm font-medium text-[var(--text-secondary)]" htmlFor="category">Category</label>
+            <label className="text-xs sm:text-sm md:text-base font-medium text-[var(--text-secondary)]" htmlFor="category">Category</label>
             <select 
-              className="mt-1 block w-full rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 px-3 text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
+              className="mt-1 block w-full rounded-lg border-[var(--border-color)] bg-[var(--bg-secondary)] py-1.5 sm:py-2 md:py-2.5 px-2 sm:px-3 md:px-4 text-xs sm:text-sm md:text-base text-[var(--text-primary)] shadow-sm focus:border-[var(--primary-color)] focus:ring focus:ring-[var(--primary-color)] focus:ring-opacity-50" 
               id="category"
               value={filters.category}
               onChange={(e) => onFiltersChange({ ...filters, category: e.target.value })}
